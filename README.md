@@ -8,6 +8,7 @@ Aim of this project:
 2) Analyze the tweets and understand the customer behavior for taking Decisions for optimizing customer satisfaction
 3) Suggest the ideas to the business team
 
+Note: This is the not the optimzed analysis of this project as it was done in less than 15 minutes of time . This is only for demonstration purpose.
 
 Results:
 
