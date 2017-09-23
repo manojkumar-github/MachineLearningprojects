@@ -1,4 +1,4 @@
-#Classification of Tweet Sentiments of Express Store
+#Classification of Tweet Sentiments of customers of the Express Store
 
 This project is developed as a demonstration of my experience in handling unstructured data. The business case considered here is:
 " To understand the online behavior of customers of "Express Store" using their Twitter Data "
