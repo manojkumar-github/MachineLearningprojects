@@ -11,35 +11,35 @@ Aim of this project:
 
 Results:
 
-Positive tweets percentage: 33.78378378378378 %
+    Positive tweets percentage: 33.78378378378378 %
 
-Negative tweets percentage: 10.81081081081081 %
+    Negative tweets percentage: 10.81081081081081 %
 
-Neutral tweets percentage: 55.4054054054054 %
-
-
-Positive tweets:
-
-Love how efficient @express is with their customer service. 👍🏾😃
-
-@express I do love the clothes though.
-
-I look extravagant in a suit can't be modest about this... @express book me
-
-Sophisticated neutrals. @express High waisted side zipper midi pencil skirt. $48 sale
-#fashion #ootd #instafashion… https://t.co/R0xg3ROQPA
-
-RT @austinnorth55: Staying classy all day long.. Suit game strong @express #ExpressLife #ExpressPartner https://t.co/U46KCsfBEE
+    Neutral tweets percentage: 55.4054054054054 %
 
 
-Negative tweets:
+    Positive tweets:
 
-@express Why do you have a coupon and a store wide sale at the same time but they can’t be combined? Ummmm 🤔 https://t.co/gQriphD7Kp
+      Love how efficient @express is with their customer service. 👍🏾😃
 
-Fashionista @candacemread talks about #cbus is right behind #NYC + #LA in #fashion, home of @express  @DSWShoeLovers https://t.co/DjfPLz05XB
+      @express I do love the clothes though.
 
-@Paytotheklo @express I'll check those out - I am on the hunt for black work trousers that are SKINNY and long enou… https://t.co/V4qbVmSLtg
+      I look extravagant in a suit can't be modest about this... @express book me
 
-@annazzon @express It sucks bc they are so expensive for skinny people.  I don't even go in there bc they don't hav… https://t.co/RPNveb2R0U
+    Sophisticated neutrals. @express High waisted side zipper midi pencil skirt. $48 sale
+    #fashion #ootd #instafashion… https://t.co/R0xg3ROQPA
 
-@express Or is that morning sickness? An odd craving.
+    RT @austinnorth55: Staying classy all day long.. Suit game strong @express #ExpressLife #ExpressPartner https://t.co/U46KCsfBEE
+
+
+    Negative tweets:
+
+      @express Why do you have a coupon and a store wide sale at the same time but they can’t be combined? Ummmm 🤔 https://t.co/gQriphD7Kp
+
+      Fashionista @candacemread talks about #cbus is right behind #NYC + #LA in #fashion, home of @express  @DSWShoeLovers https://t.co/DjfPLz05XB
+
+      @Paytotheklo @express I'll check those out - I am on the hunt for black work trousers that are SKINNY and long enou… https://t.co/V4qbVmSLtg
+
+      @annazzon @express It sucks bc they are so expensive for skinny people.  I don't even go in there bc they don't hav… https://t.co/RPNveb2R0U
+
+      @express Or is that morning sickness? An odd craving.
