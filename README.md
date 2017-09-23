@@ -12,7 +12,9 @@ Aim of this project:
 Results:
 
 Positive tweets percentage: 33.78378378378378 %
+
 Negative tweets percentage: 10.81081081081081 %
+
 Neutral tweets percentage: 55.4054054054054 %
 
 
