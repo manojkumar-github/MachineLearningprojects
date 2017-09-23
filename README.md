@@ -26,10 +26,10 @@ Results:
 
       I look extravagant in a suit can't be modest about this... @express book me
 
-    Sophisticated neutrals. @express High waisted side zipper midi pencil skirt. $48 sale
-    #fashion #ootd #instafashion… https://t.co/R0xg3ROQPA
+      Sophisticated neutrals. @express High waisted side zipper midi pencil skirt. $48 sale
+      #fashion #ootd #instafashion… https://t.co/R0xg3ROQPA
 
-    RT @austinnorth55: Staying classy all day long.. Suit game strong @express #ExpressLife #ExpressPartner https://t.co/U46KCsfBEE
+      RT @austinnorth55: Staying classy all day long.. Suit game strong @express #ExpressLife #ExpressPartner https://t.co/U46KCsfBEE
 
 
     Negative tweets:
@@ -43,3 +43,8 @@ Results:
       @annazzon @express It sucks bc they are so expensive for skinny people.  I don't even go in there bc they don't hav… https://t.co/RPNveb2R0U
 
       @express Or is that morning sickness? An odd craving.
+
+    Observations/Places to improve to the business team (High-Level):
+       - Customers looking to apply Coupon on the clothes that are on "Sale"
+       - Customers who are skinny have issues with high prices for clothers with higher sizes
+       
