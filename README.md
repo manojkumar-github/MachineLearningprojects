@@ -44,7 +44,7 @@ Results:
 
       @express Or is that morning sickness? An odd craving.
 
-    Observations/Places to improve to the business team (High-Level):
+    Observations/Places to improve for the business team (High-Level):
        - Customers looking to apply Coupon on the clothes that are on "Sale"
        - Customers who are skinny have issues with high prices for clothers with higher sizes
        
