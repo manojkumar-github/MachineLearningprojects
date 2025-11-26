@@ -411,5 +411,12 @@ pred_clusters_in_this_matchgroup_id = matchgroupd_id_3_df["pred_cluster"].unique
 remaining_df = df[~df["MatchGroupId1"]=="ID1"]
 remaining_df[remaining_df["pred_cluster"].isin(pred_clusters_in_this_matchgroup_id)].shape # (0,0)
 
+pred_cluster_counts_df = pd.DataFrame(df["pred_cluster"].value_counts())
+pred_cluster_counts_df
+
+
+pred_cluster_counts_df = pd.DataFrame(df["pred_cluster"].value_counts()).reset_index()
+pred_cluster_counts_df.columns = ["pred_cluster", "count"]
+pred_cluster_counts_df[pred_cluster_counts_df['count'] == 1].shape
 
 """
