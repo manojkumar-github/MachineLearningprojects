@@ -382,3 +382,34 @@ out_cols = ["_idx", "pred_cluster", "MatchGroupId"] + [c for c in df.columns if 
 out_cols = [c for c in out_cols if c in df.columns]
 final_df = df[out_cols].copy()
 print(final_df.head(50))
+
+
+"""
+SC-1:
+other_cols, MatchGroupId1, pred_cluster_id1
+other_cols, MatchGroupId1, pred_cluster_id1
+other_cols, MatchGroupId1, pred_cluster_id2
+other_cols, MatchGroupId1, pred_cluster_id2
+other_cols, MatchGroupId2, pred_cluster_id2
+
+SC-2:
+other_cols, MatchGroupId1, pred_cluster_id1
+other_cols, MatchGroupId2, pred_cluster_id1
+
+
+1. predict_clusterid=1
+
+df["pred_cluster"].nunique()
+
+SC-2:
+pred_cluster_1_df = df[df["pred_cluster"]==1]
+pred_cluster_1_df["MatchGroupId1"].value_counts() # should have only MatchGroupId1
+
+SC-1:
+matchgroupd_id_3_df = df[df["MatchGroupId1"]=="ID1"]
+pred_clusters_in_this_matchgroup_id = matchgroupd_id_3_df["pred_cluster"].unique().tolist()
+remaining_df = df[~df["MatchGroupId1"]=="ID1"]
+remaining_df[remaining_df["pred_cluster"].isin(pred_clusters_in_this_matchgroup_id)].shape # (0,0)
+
+
+"""
