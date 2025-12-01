@@ -17,3 +17,11 @@ High-level pipeline:
 
 5.	Fallback for ambiguous cases
 	- Flag components where no zero-sum partition is found or there are many candidate partitions
+
+
+Evalaution:
+How did this experiment perform?
+- How many clusters did we predict accurately? (Like all expected records within same cluster for each cluster?)
+- N clusters vs N MatchGroupIds?
+- How many clusers did we predict in-accurately?
+
