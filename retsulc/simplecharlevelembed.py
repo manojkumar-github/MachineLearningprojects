@@ -1,110 +1,98 @@
 """
-What Changed in This Version?
+Step 1 — Data preparation
+	•	Clean date, numeric fields
+	•	Prepare string IDs
 
-✔ Added small neural embeddings for ID-like fields
+Step 2 — Embedding Model
 
-Instead of treating IDs like raw strings:
-	•	Each ID is encoded as a sequence of characters
-	•	Fed into a tiny CNN encoder
-	•	Produces a dense 32-dimensional embedding
+A small character-level CNN encoder + numeric features → 64-dim vector
 
-This helps capture patterns like:
-	•	Similar merchant behaviors
-	•	Partial string similarities
-	•	Layout-like structures of IDs
-	•	Numeric + alphanumeric similarity
+Step 3 — Contrastive Learning
+	•	Positive pairs = same MatchGroupId
+	•	Negative pairs = different MatchGroupId
+	•	Loss = Contrastive Loss
+L = y \cdot D^2 + (1-y) \cdot \max(0, margin - D)^2
 
-[ID embeddings] + [SignedAmount] + [Date numeric]
+Step 4 — Use learned embeddings for clustering
+	•	Block by date window
+	•	Build graph with:
+	•	Edges for CR ↔ DR
+	•	Extra edges where embedding similarity > threshold
+	•	Keep only clusters where sum(amount)=0
 
-But clustering still follows your strict rules (date-window + zero-sum).
+✔ Embeddings now meaningfully influence clustering
 
-⸻
+Used through cosine similarity edges in graph.
 
-🤔 Next Steps (Optional)
+✔ Contrastive loss trains embeddings to reflect real cluster structure
 
-If you’d like, we can:
+Positive = same MatchGroupId
+Negative = different groups
 
-⭐ Add cosine similarity edges using embeddings
+✔ Better matching for ambiguous cases
 
-Helps detect near-duplicate reference numbers.
+Transactions with similar:
+	•	IDs
+	•	Merchant refs
+	•	Accounting doc numbers
+	•	Reference numbers
+	•	Dates
+	•	Amount patterns
 
-⭐ Add triplet-loss fine-tuning
+get closer in embedding space.
 
-Use MatchGroupId as supervision to train better embeddings.
+✔ Still respects your strict business rules
+	•	Date-window block
+	•	Amount-sum-to-zero constraint
 
-⭐ Add ML scoring for ambiguous clusters
+ML enhances clustering but does not replace rules.
+
 """
 
 import pandas as pd
 import numpy as np
-import networkx as nx
-from datetime import timedelta
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import torch.nn.functional as F
+import networkx as nx
+from datetime import timedelta
+from sklearn.model_selection import train_test_split
 
-# -------------------------------------------------------------------------
-# 1. LOAD + PREPARE THE DATA
-# -------------------------------------------------------------------------
+
+# ============================================================================
+# 1. LOAD & PREP DATA
+# ============================================================================
 
 df = pd.read_csv("transactions.csv")
-
 df["DocumentDate"] = pd.to_datetime(df["DocumentDate"], errors="coerce")
 
+# Signed amount CR(+), DR(-)
 def convert_amount(row):
-    multiplier = 1 if row["CR_DR"] == "CR" else -1
-    return multiplier * row["Amount"]
+    return row["Amount"] if row["CR_DR"] == "CR" else -row["Amount"]
 
 df["SignedAmount"] = df.apply(convert_amount, axis=1)
 
 df = df.sort_values("DocumentDate").reset_index(drop=True)
 
-# -------------------------------------------------------------------------
-# 2. SMALL NEURAL NETWORK EMBEDDING MODELS
-# -------------------------------------------------------------------------
 
-# Character vocabulary for IDs, numeric strings, alphanumerics
+# ============================================================================
+# 2. ENCODER MODEL: Character-level ID embedding + numeric features
+# ============================================================================
+
 CHARS = list("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-/.")
-char_to_idx = {c: i+1 for i, c in enumerate(CHARS)}
+char_to_idx = {c: i + 1 for i, c in enumerate(CHARS)}
 vocab_size = len(char_to_idx) + 1
+SEQ_LEN = 32
 
-EMBED_DIM = 32
-
-def encode_string(s, max_len=32):
-    """Turn raw ID-like string into fixed-length sequence of ints."""
+def encode_string(s, max_len=SEQ_LEN):
     s = str(s)
     idxs = [char_to_idx.get(c, 0) for c in s[:max_len]]
     idxs += [0] * (max_len - len(idxs))
     return torch.tensor(idxs, dtype=torch.long)
 
-class IDEncoder(nn.Module):
-    """
-    A compact sequence encoder for ID-like fields:
-    - char embedding
-    - 1D CNN feature extractor
-    - max pooling
-    """
-    def __init__(self, vocab_size, embed_dim, out_dim=32):
-        super().__init__()
-        self.char_embed = nn.Embedding(vocab_size, embed_dim)
-        self.conv = nn.Conv1d(embed_dim, out_dim, kernel_size=3, padding=1)
 
-    def forward(self, x):
-        # x shape = (batch, seq_len)
-        x = self.char_embed(x)            # (batch, seq_len, embed_dim)
-        x = x.transpose(1, 2)             # (batch, embed_dim, seq_len)
-        x = F.relu(self.conv(x))          # (batch, out_dim, seq_len)
-        x = torch.max(x, dim=2)[0]        # (batch, out_dim)
-        return x
-
-# Instantiate one shared encoder
-id_encoder = IDEncoder(vocab_size, embed_dim=16, out_dim=32)
-
-# -------------------------------------------------------------------------
-# 3. FIELDS WE EMBED
-# -------------------------------------------------------------------------
-
-text_fields = [
+ID_FIELDS = [
     "TransactionRefNo",
     "MerchantRefNum",
     "PONumber",
@@ -115,101 +103,193 @@ text_fields = [
     "WebOrderNumber"
 ]
 
-def compute_embeddings(df):
-    embeddings = []
 
-    for idx, row in df.iterrows():
-        row_embs = []
+class IDEncoder(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.char_embed = nn.Embedding(vocab_size, 16)
 
-        for f in text_fields:
+        # CNN encoder
+        self.conv = nn.Conv1d(16, 32, kernel_size=3, padding=1)
+
+        # Combine all ID embeddings + numeric
+        self.fc = nn.Linear(32 * len(ID_FIELDS) + 2, 64)
+
+    def encode_single_field(self, seq):
+        x = self.char_embed(seq.unsqueeze(0))
+        x = x.transpose(1, 2)
+        x = F.relu(self.conv(x))
+        x = x.max(dim=2)[0]
+        return x.squeeze(0)
+
+    def forward(self, row):
+        id_embs = []
+
+        for f in ID_FIELDS:
             seq = encode_string(row[f])
-            seq = seq.unsqueeze(0)  # batch = 1
-            with torch.no_grad():
-                emb = id_encoder(seq)[0]
-            row_embs.append(emb)
+            id_embs.append(self.encode_single_field(seq))
 
-        # Numeric amount as a feature
-        amount_emb = torch.tensor([row["SignedAmount"]], dtype=torch.float)
+        amount = torch.tensor([row["SignedAmount"]], dtype=torch.float)
+        date_val = torch.tensor([row["DocumentDate"].timestamp() / (3600 * 24)], dtype=torch.float)
 
-        # Date as numeric
-        date_val = row["DocumentDate"].timestamp() / (3600 * 24)
-        date_emb = torch.tensor([date_val], dtype=torch.float)
-
-        # Concatenate all embeddings → final  feature vector
-        full_emb = torch.cat(row_embs + [amount_emb, date_emb], dim=0)
-
-        embeddings.append(full_emb)
-
-    embedding_mat = torch.stack(embeddings)
-    return embedding_mat
+        x = torch.cat(id_embs + [amount, date_val], dim=0)
+        return self.fc(x)
 
 
-df_embeddings = compute_embeddings(df)
+model = IDEncoder()
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model.to(device)
 
-# -------------------------------------------------------------------------
-# 4. DATE-ONLY BLOCKING (ONLY RULE USED)
-# -------------------------------------------------------------------------
+
+# ============================================================================
+# 3. CONTRASTIVE LOSS (Metric Learning)
+# ============================================================================
+
+class ContrastiveLoss(nn.Module):
+    def __init__(self, margin=1.0):
+        super().__init__()
+        self.margin = margin
+
+    def forward(self, emb1, emb2, label):
+        dist = F.pairwise_distance(emb1, emb2)
+        loss = label * dist.pow(2) + (1 - label) * torch.clamp(self.margin - dist, min=0).pow(2)
+        return loss.mean()
+
+
+criterion = ContrastiveLoss()
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
+
+
+# ============================================================================
+# 4. TRAINING DATA: Build positive & negative pairs using MatchGroupId
+# ============================================================================
+
+pairs = []
+labels = []
+
+# Positive pairs
+for g in df["MatchGroupId"].unique():
+    idxs = df.index[df["MatchGroupId"] == g].tolist()
+    if len(idxs) > 1:
+        for i in range(len(idxs)):
+            for j in range(i + 1, len(idxs)):
+                pairs.append((idxs[i], idxs[j]))
+                labels.append(1)
+
+# Negative pairs (random)
+all_indices = df.index.tolist()
+np.random.shuffle(all_indices)
+for i in range(len(pairs)):
+    a = np.random.choice(all_indices)
+    b = np.random.choice(all_indices)
+    if df.loc[a, "MatchGroupId"] != df.loc[b, "MatchGroupId"]:
+        pairs.append((a, b))
+        labels.append(0)
+
+# Train / Test split
+(train_pairs, test_pairs, train_labels, test_labels) = train_test_split(
+    pairs, labels, test_size=0.2, random_state=42
+)
+
+
+# ============================================================================
+# 5. TRAIN METRIC EMBEDDINGS
+# ============================================================================
+
+def get_embedding(idx):
+    row = df.loc[idx]
+    with torch.no_grad():
+        return model(row).to(device)
+
+def train_metric_model(epochs=3):
+    model.train()
+    for ep in range(epochs):
+        total_loss = 0
+        for (i, j), lbl in zip(train_pairs, train_labels):
+            optimizer.zero_grad()
+
+            emb_i = model(df.loc[i].to_dict())
+            emb_j = model(df.loc[j].to_dict())
+
+            lbl_t = torch.tensor([lbl], dtype=torch.float, device=device)
+
+            loss = criterion(emb_i, emb_j, lbl_t)
+            loss.backward()
+            optimizer.step()
+
+            total_loss += loss.item()
+
+        print(f"Epoch {ep+1}: Loss={total_loss:.4f}")
+
+train_metric_model()
+
+
+# ============================================================================
+# 6. USE EMBEDDINGS FOR SIMILARITY-BASED GRAPH CLUSTERING
+# ============================================================================
+
+def cosine_sim(v1, v2):
+    return F.cosine_similarity(v1.unsqueeze(0), v2.unsqueeze(0))[0].item()
+
 
 def create_date_blocks(df, window_days=3):
     blocks = []
-    current_block = [df.index[0]]
+    current = [df.index[0]]
 
     for i in range(1, len(df)):
-        prev_date = df.loc[df.index[i-1], "DocumentDate"]
-        curr_date = df.loc[df.index[i], "DocumentDate"]
-
-        if (curr_date - prev_date).days <= window_days:
-            current_block.append(df.index[i])
+        if (df.loc[i, "DocumentDate"] - df.loc[i-1, "DocumentDate"]).days <= window_days:
+            current.append(df.index[i])
         else:
-            blocks.append(current_block)
-            current_block = [df.index[i]]
-
-    blocks.append(current_block)
+            blocks.append(current)
+            current = [df.index[i]]
+    blocks.append(current)
     return blocks
 
 
-date_blocks = create_date_blocks(df, window_days=3)
-
-# -------------------------------------------------------------------------
-# 5. GRAPH-BASED ZERO-SUM CLUSTERING
-# -------------------------------------------------------------------------
-
-def cluster_zero_sum(block_indices):
-    block_df = df.loc[block_indices]
-
-    # Graph nodes
+def cluster_block(block, sim_threshold=0.6):
     G = nx.Graph()
-    G.add_nodes_from(block_df.index)
+    G.add_nodes_from(block)
 
-    # Link CR to DR with opposite signs
-    pos = block_df[block_df["SignedAmount"] > 0]
-    neg = block_df[block_df["SignedAmount"] < 0]
+    # Precompute embeddings
+    emb_map = {idx: get_embedding(idx) for idx in block}
 
-    for i in pos.index:
-        for j in neg.index:
+    # Rule 1: CR ↔ DR edges
+    pos = [i for i in block if df.loc[i, "SignedAmount"] > 0]
+    neg = [i for i in block if df.loc[i, "SignedAmount"] < 0]
+    for i in pos:
+        for j in neg:
             G.add_edge(i, j)
 
-    # Connected components = candidate clusters
-    comps = list(nx.connected_components(G))
-    
-    final_clusters = []
-    for c in comps:
-        sub = block_df.loc[list(c)]
-        if abs(sub["SignedAmount"].sum()) < 1e-6:
-            final_clusters.append(list(c))
+    # Rule 2: Embedding-based similarity
+    for i in block:
+        for j in block:
+            if i < j:
+                sim = cosine_sim(emb_map[i], emb_map[j])
+                if sim >= sim_threshold:
+                    G.add_edge(i, j)
 
-    return final_clusters
+    # Find connected components
+    comps = nx.connected_components(G)
+
+    # Keep only components that sum to zero
+    valid = []
+    for comp in comps:
+        comp = list(comp)
+        if abs(df.loc[comp]["SignedAmount"].sum()) < 1e-6:
+            valid.append(comp)
+    return valid
 
 
 all_clusters = []
+blocks = create_date_blocks(df)
 
-for block in date_blocks:
-    clusters = cluster_zero_sum(block)
-    all_clusters.extend(clusters)
+for block in blocks:
+    all_clusters.extend(cluster_block(block))
 
-# -------------------------------------------------------------------------
-# 6. STORE PREDICTED CLUSTERS
-# -------------------------------------------------------------------------
+
+# ============================================================================
+# 7. SAVE CLUSTER RESULTS
+# ============================================================================
 
 cluster_map = {}
 for cid, nodes in enumerate(all_clusters):
@@ -217,7 +297,6 @@ for cid, nodes in enumerate(all_clusters):
         cluster_map[n] = cid
 
 df["PredictedCluster"] = df.index.map(cluster_map).fillna(-1).astype(int)
+df.to_csv("final_cluster_output.csv", index=False)
 
-df.to_csv("clustered_output_with_embeddings.csv", index=False)
-
-print("Clustering completed with neural embeddings integrated.")
+print("Clustering completed with contrastive-learning embeddings.")
