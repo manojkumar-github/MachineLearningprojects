@@ -15,8 +15,5 @@ High-level pipeline:
 	- For each component, perform a constrained grouping algorithm: because clusters are small (2–5 per your earlier stats), a backtracking/subset enumeration that tries all subsets to find partitions whose signed sums ≈ 0 is feasible.
 	- If multiple valid partitions exist, pick the one that maximizes a secondary score (e.g., minimal intra-cluster time span, maximal count of exact identifier matches, or a learned pairwise confidence).
 
-5.	Post-processing & transitivity
-	- Ensure clusters are consistent and transitive. If you used pairwise merges, compute connected components of resulting match graph to finalize clusters.
-
-6.	Fallback for ambiguous cases
+5.	Fallback for ambiguous cases
 	- Flag components where no zero-sum partition is found or there are many candidate partitions
