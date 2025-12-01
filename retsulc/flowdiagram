@@ -1,0 +1,77 @@
+               ┌────────────────────────────────────────┐
+               │              INPUT DATA                 │
+               │   • DocumentDate                       │
+               │   • BankTrfRef                         │
+               │   • AcquireRefNumber                   │
+               │   • Amount                              │
+               │   • Transaction / Merchant IDs         │
+               │   • Other metadata fields              │
+               └────────────────────────────────────────┘
+                                 │
+                                 ▼
+       ┌────────────────────────────────────────────────────────┐
+       │                1. DATA PREPARATION                     │
+       │  • Parse dates                                         │
+       │  • Normalize amounts                                   │
+       │  • Clean Null/Unknown/Noise strings                    │
+       │  • Extract prefixes (BankTrfRef[0:6], AcquireRefNum[0:9]) │
+       │  • Convert CR/DR to +1 / -1 sign                       │
+       └────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+ ┌─────────────────────────────────────────────────────────────────────┐
+ │                     2. BLOCKING (Hard Constraints)                  │
+ │  Reduce the search space by grouping only records that satisfy:     │
+ │   • Same BankTrfRef 6-character prefix                              │
+ │   • Same AcquireRefNumber 9-character prefix                         │
+ │   • DocumentDate difference ≤ 3 days                                │
+ │                                                                     │
+ │  Result: Small candidate blocks of potentially matching records     │
+ └─────────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+     ┌───────────────────────────────────────────────────────────────┐
+     │       3. CONSTRAINT-AWARE GROUPING (Graph / Search)           │
+     │                                                               │
+     │  For each block:                                              │
+     │   • Create a graph where each row = node                      │
+     │   • Add edges between records whose amounts partially match   │
+     │   • Search for subsets where:                                  │
+     │        Σ(CR amounts) + Σ(DR amounts) = 0                      │
+     │   • Identify valid connected components as final groups       │
+     └───────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+    ┌────────────────────────────────────────────────────────────────┐
+    │           4. OPTIONAL ML / METRIC LEARNING REFINEMENT         │
+    │     (Only used when similarity is ambiguous)                  │
+    │                                                                │
+    │  • Create embeddings for:                                      │
+    │       - TransactionRefNo / MerchantRefNum / IDs                │
+    │       - Categorical fields (nn.Embedding)                      │
+    │       - Numeric fields (scaled)                                │
+    │                                                                │
+    │  • Train with Triplet Loss / Contrastive Loss:                 │
+    │       Anchor – Positive – Negative                             │
+    │       → Pull true matches closer, push non-matches apart       │
+    │                                                                │
+    │  • Use ML-based similarity to refine or validate clusters       │
+    └────────────────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+         ┌────────────────────────────────────────────────────┐
+         │                5. FINAL CLUSTERS                   │
+         │  • Each cluster satisfies all business rules:      │
+         │       - CR/DR net to zero                          │
+         │       - Prefix matches                             │
+         │       - Date window ≤ 3 days                       │
+         │  • ML optional refinement improves accuracy        │
+         └────────────────────────────────────────────────────┘
+                                 │
+                                 ▼
+               ┌────────────────────────────────────────┐
+               │       OUTPUT / EVALUATION              │
+               │  • Use MatchGroupId for validation     │
+               │  • Compute clustering accuracy metrics │
+               │  • Export reconciled transaction sets  │
+               └────────────────────────────────────────┘
