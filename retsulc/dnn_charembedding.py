@@ -105,7 +105,13 @@ char_fields = [
 char_fields = [f for f in char_fields if f in df.columns]
 
 # Build character vocabulary from dataset (limit to ASCII subset)
-all_text = " ".join(df[f].astype(str).tolist() for f in char_fields)
+#all_text = " ".join(df[f].astype(str).tolist() for f in char_fields)
+final = []
+for f in char_fields:
+  df[f].astype(str).tolist()
+  final.extend(df[f].astype(str).tolist())
+all_text = " ".join(final)
+
 chars = sorted(list(set([c for c in all_text])))
 # Ensure deterministic ordering and reserve index 0 for padding
 char_to_idx = {c: i+1 for i, c in enumerate(chars)}
