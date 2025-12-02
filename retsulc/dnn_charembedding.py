@@ -26,6 +26,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 
+import torch.nn.functional as F
+
 # ---------------------------
 # 1) Example data / load CSV
 # ---------------------------
