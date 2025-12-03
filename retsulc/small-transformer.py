@@ -1,5 +1,19 @@
 """
 End-to-end: Hybrid char-level encoder (CNN+Transformer) + Contrastive pretraining + HDBSCAN hypersearch + Graph matching
+
+Below is a single, self-contained Python script that implements your requested end-to-end pipeline:
+	•	Hybrid CNN + Transformer character-level encoder for ID-like fields (per-field CNN → field vectors → Transformer over fields → pooled embedding)
+	•	Self-supervised contrastive pretraining (NT-Xent) with ID-specific augmentations (SimCLR-style)
+	•	Automatic HDBSCAN hyperparameter search (grid search over min_cluster_size / min_samples) using silhouette score on the combined feature space (embeddings + numeric + categorical)
+	•	Graph construction and max-weight bipartite matching (Hungarian) to pair CR/DR transactions within clusters (with an amount-compatibility acceptance rule)
+	•	Multi-way subset search for remaining unassigned transactions to enforce sum(SignedAmount) == 0 per final cluster
+	•	Optional evaluation (pairwise precision/recall/F1) if MatchGroupId exists
+
+Notes before you run:
+	•	This is intended to be run on a machine with PyTorch installed. If hdbscan is missing the script will try to install it.
+	•	Hyperparameters (batch size, epochs, embed dims, HDBSCAN grids) are exposed at the top — tune these for your dataset and compute.
+	•	For production datasets (~2.3k rows) these settings are conservative; increase contrastive training epochs and batch size if you have GPU memory.
+
 """
 
 import os
