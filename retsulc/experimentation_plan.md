@@ -60,6 +60,7 @@ precision: 0.4787, recall 0.1931 and f1: 0.2752 (TODO: Attach stats{} dataframe 
 #### Experiment-2:
 
 Previous experiment: simple CNN → avg pool → projection → no pretraining → no semantics learned
+
 Improvement-1:
 
 Added contrastive pretraining (self-supervised)
@@ -90,3 +91,17 @@ min_samples ∈ [2, 3, 4, 5]
 ```
 
 So tried  grid search and used precision@cluster as tuning metric.
+
+Improvment-3:
+
+Then solve:
+	•	maximum weight perfect matching (Hungarian algorithm)
+	•	OR minimum-cost flow with balance constraint
+
+This ensures sum=0 and uses similarity more intelligently.
+
+```
+node = transaction
+edge weight = similarity score (embedding distance inverse)
+constraint: sum(amounts)=0
+```
