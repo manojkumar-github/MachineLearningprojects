@@ -59,6 +59,8 @@ precision: 0.4787, recall 0.1931 and f1: 0.2752 (TODO: Attach stats{} dataframe 
 
 #### Experiment-2:
 
+Code link : https://github.com/manojkumar-github/MachineLearningprojects/blob/master/retsulc/3_selfsupervisedcontrastiveloss.py
+
 Previous experiment: simple CNN → avg pool → projection → no pretraining → no semantics learned
 
 Improvement-1:
