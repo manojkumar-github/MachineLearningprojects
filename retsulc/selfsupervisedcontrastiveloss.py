@@ -401,6 +401,7 @@ def find_multiway_balanced(member_indices):
     leftovers = [m for m in member_indices if final_cluster_map[m] == -1]
     return leftovers
 
+df.reset_index(inplace=True)
 # run per raw cluster
 raw_clusters = {}
 for lbl in sorted(set(best_labels)):
