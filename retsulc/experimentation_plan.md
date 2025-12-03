@@ -110,6 +110,15 @@ constraint: sum(amounts)=0
 
 Summary of experiment-2:
 
-node = transaction
-edge weight = similarity score (embedding distance inverse)
-constraint: sum(amounts)=0
+"""
+End-to-end pipeline implementing:
+1) Self-supervised contrastive pretraining of a character-level encoder for ID-like fields
+2) DBSCAN hyperparameter tuning (grid search using silhouette score on embeddings)
+3) Graph construction + max-weight bipartite matching between CR and DR to enforce sum-to-zero
+4) Small-subset search to handle multi-way (3-4 item) balanced groups left after pairing
+
+Notes:
+- This is unsupervised: MatchGroupId is NOT used for training, only optional evaluation if present.
+- This code is self-contained, uses PyTorch + sklearn + scipy + networkx.
+- Adjust hyperparameters (epochs, batch_size, DBSCAN grid) per your dataset size.
+"""
