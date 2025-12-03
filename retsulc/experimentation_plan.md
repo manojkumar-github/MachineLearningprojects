@@ -53,3 +53,38 @@ Notes:
 
 Results:
 precision: 0.4787, recall 0.1931 and f1: 0.2752 (TODO: Attach stats{} dataframe screenshot)
+
+
+## Experiment-2:
+
+Previous experiment: simple CNN → avg pool → projection → no pretraining → no semantics learned
+Improvement-1:
+
+Added contrastive pretraining (self-supervised)
+
+Even without MatchGroupId, we can create positive pairs using augmentation:
+
+For each ID-like field (TransactionRefNo, MerchantRefNum, etc.):
+	•	Positive pair = (raw string, augmented string)
+	•	Augmentations:
+	•	random character dropout
+	•	random transposition
+	•	lowercase/uppercase
+	•	special symbol masking
+	•	prefix cropping
+
+This forces embeddings to learn invariances in payment IDs.
+
+Used NT-Xent or Contrastive Loss.
+
+Improvement-2:
+
+DBSCAN is extremely sensitive to:
+	•	eps
+	•	min_samples
+```
+eps ∈ [0.1, 0.3, 0.5, 0.7, 1.0]
+min_samples ∈ [2, 3, 4, 5]
+```
+
+So tried  grid search and used precision@cluster as tuning metric.
