@@ -18,7 +18,7 @@ References: Unsupervised clustering (e.g. DBScan) groups data without labels ￼
 
 #### Experiment: 1
 
- https://github.com/manojkumar-github/MachineLearningprojects/blob/master/retsulc/2_dnn_charembedding.py
+Code Link: https://github.com/manojkumar-github/MachineLearningprojects/blob/master/retsulc/2_dnn_charembedding.py
 
 Summary:
 
