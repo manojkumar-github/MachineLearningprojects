@@ -16,7 +16,9 @@ References: Unsupervised clustering (e.g. DBScan) groups data without labels ￼
 
 ### Experiments:
 
-1. Experiment: 1 - https://github.com/manojkumar-github/MachineLearningprojects/blob/master/retsulc/2_dnn_charembedding.py
+#### Experiment: 1
+
+ https://github.com/manojkumar-github/MachineLearningprojects/blob/master/retsulc/2_dnn_charembedding.py
 
 Summary:
 
@@ -55,7 +57,7 @@ Results:
 precision: 0.4787, recall 0.1931 and f1: 0.2752 (TODO: Attach stats{} dataframe screenshot)
 
 
-## Experiment-2:
+#### Experiment-2:
 
 Previous experiment: simple CNN → avg pool → projection → no pretraining → no semantics learned
 Improvement-1:
