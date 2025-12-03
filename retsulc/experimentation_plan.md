@@ -17,3 +17,26 @@ References: Unsupervised clustering (e.g. DBScan) groups data without labels ￼
 ### Experiments:
 
 1. Experiment: 1 - https://github.com/manojkumar-github/MachineLearningprojects/blob/master/retsulc/2_dnn_charembedding.py
+
+Summary:
+
+"""
+End-to-end pipeline:
+- Load data (single-row example or CSV)
+- Drop fully-unknown columns
+- Prepare character vocabulary
+- Build a deep neural char-level autoencoder (encoder produces embeddings)
+- Train autoencoder unsupervised on concatenated ID-like fields
+- Produce per-row embeddings from encoder
+- Combine embeddings with encoded categorical numeric features
+- Run DBSCAN on final feature vectors
+- Post-process clusters to enforce sum(SignedAmount)=0 by searching balanced subsets
+- Output predicted clusters and (if available) evaluation against MatchGroupId
+
+Notes:
+- This is unsupervised: MatchGroupId is NOT used for training, only optional evaluation.
+- The autoencoder here is simple and intended as a lightweight, practical embedding trainer.
+"""
+
+Results:
+precision: 0.4787, recall 0.1931 and f1: 0.2752 (Attach stats{} dataframe screenshot)
