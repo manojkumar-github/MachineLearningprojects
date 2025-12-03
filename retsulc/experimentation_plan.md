@@ -1,7 +1,7 @@
 
 ### Inital Plan:
 
-Plan for Unsupervised Clustering
+Plan for Unsupervised Clustering (Not using MatchGroupIds information through any means)
 
 - Data cleaning:  Remove the specified columns (‘ReceiptNumber’, ‘RefDocument’, ‘Assignment’, ‘StoreNumber’, ‘AuthCode’) since they contain no useful information (all “unknown” values).  Also remove any “date-window” grouping logic so that transactions are not constrained by time windows.  Keep the remaining fields (including text fields like IDs and reference numbers) for feature generation.
   
