@@ -26,8 +26,7 @@ End-to-end pipeline:
 - Drop fully-unknown columns drop_cols = ["ReceiptNumber", "RefDocument", "Assignment", "StoreNumber", "AuthCode"]
 - Prepare character vocabulary
 - Build a deep neural char-level autoencoder (encoder produces embeddings)
-
-  # fields to use in the char-level encoder (ID-like fields)
+fields to use in the char-level encoder (ID-like fields)
 char_fields = [
     "MerchantRefNum",
     "WebOrderNumber",
