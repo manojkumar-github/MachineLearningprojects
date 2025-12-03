@@ -105,3 +105,9 @@ node = transaction
 edge weight = similarity score (embedding distance inverse)
 constraint: sum(amounts)=0
 ```
+
+Summary of experiment-2:
+
+node = transaction
+edge weight = similarity score (embedding distance inverse)
+constraint: sum(amounts)=0
