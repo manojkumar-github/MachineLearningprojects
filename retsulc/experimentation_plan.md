@@ -1,3 +1,29 @@
+Planning:
+
+4 places
+
+Data:
+
+Increase datasetsize - 2<cluster_size<5 instead of 5 vs 10?
+Dataset Cleaning - Are there existing columns that are causing noise?
+
+Feature Engineering:
+DocumentDate not being used any current features
+categorical
+Char embedding?
+Some idea
+
+Model training:
+Epochs
+Customloss
+
+
+DBScan settings hyperparamter grid search
+
+
+
+
+
 
 ### Inital Plan:
 
