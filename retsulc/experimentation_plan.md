@@ -29,7 +29,8 @@ Some quick stats:
 6_: 13 clusters
 7_: 44 clusters
 8_: 24 clusters
-9_: 
+9_: 14 clusters
+10_: 105 clusters
 
 
 
