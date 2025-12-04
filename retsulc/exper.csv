@@ -1,0 +1,17 @@
+,,,,,,,
+In all these DocumentDate is not used at all,,,,,Loss,,
+Experiment,Dataset,FeatureEngineering,Loss,Clustering,,N clusters,Notes/Comments
+2_dnn_charembedding,,,,DBScan,,157,
+3_selfsupervisedcontrastiveloss.py,,,,DBScan with hyperparameter search,,22,
+4_selfsupervised-hdbscan.py,,,,HDBScan with hyperparameter search,,51,
+5_small-transformer.py,,,,HDBScan with hyperparameter search,,13,
+6_optimal_greed_matching,,,,,,13,Hybrid character-level encoder (Per-field CNN -> Transformer) producing embeddings
+7_adding_signed_amount_using_matchgroupId,,,,,,44,SignedAmount included as a learnable feature inside the encoder
+8_7withDBScan,,,,,,24,From here it used MatchGroupId
+9_field_specific_encoder,,,,,,14,"- Field-specific small CNN encoders (one encoder per field)
+- Transformer over field vectors
+- SignedAmount encoded INSIDE the neural encoder (learnable projection)"
+10_hybridtransformer,,,,,,105,"- Per-field small CNN encoder (captures local char patterns)
+- Transformer encoder *over field vectors* (cross-field attention)"
+11_idea_of_2_and_idea_3,,,,,,,
+,,,,,,,per filed samll CNN encoder and transfomer encoder with cross entropy loss
