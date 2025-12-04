@@ -1,3 +1,185 @@
+4th:
+
+Below is the correct way to design a custom loss function so that the model learns embeddings where:
+	1.	Transactions within ±3 days should be close in embedding space,
+	2.	Transactions whose SignedAmount values sum to 0 (in pairs or groups) should be close,
+	3.	Everything else should be pushed far apart,
+	4.	Fully unsupervised OR weakly supervised,
+	5.	No rule-based processing outside the loss — the network learns the rules directly.
+
+This is the same idea used by:
+	•	Deep metric learning,
+	•	Self-supervised contrastive learning,
+	•	Temporal sensitivity embedding,
+	•	Value-balancing embedding (your case).
+
+⸻
+
+✅ Define the Problem as a Metric Learning Task
+
+We want to learn an embedding function:
+
+f(x) → ℝ^D
+
+such that:
+
+✔ If two items A and B meet these conditions:
+	•	|DocumentDate(A) – DocumentDate(B)| ≤ 3 days
+	•	They participate in a zero-sum amount balancing group
+(e.g., A.Amount + B.Amount = 0 OR A+B+C = 0)
+
+→ Their embeddings should be close
+ ‖f(A) – f(B)‖ small
+
+✔ Otherwise embeddings should be far
+
+ ‖f(A) – f(B)‖ large
+
+This naturally enables DBSCAN/HDBSCAN to cluster correctly.
+
+⸻
+
+🌟 THE BEST WAY: Create a Compound Contrastive Loss Function
+
+We build a multi-term contrastive loss:
+
+L = w1 * L_date + w2 * L_amount + w3 * L_negative
+
+Where:
+	•	L_date enforces closeness for date-proximal pairs
+	•	L_amount enforces closeness for zero-sum pairs
+	•	L_negative pushes far apart everything else
+
+This is the cleanest and most powerful design.
+
+⸻
+
+🧠 1. Date-based Positive Pair Loss
+
+Two transactions with Date difference ≤ 3 days are positive pairs.
+
+def date_positive_mask(dates, max_days=3):
+    diff = torch.abs(dates.unsqueeze(0) - dates.unsqueeze(1))
+    return (diff <= max_days).float()
+
+Loss (contrastive):
+
+def date_loss(emb, date_mask, margin=1.0):
+    # Positive similarity
+    pos_pairs = date_mask > 0
+    pos_dist = (emb.unsqueeze(1) - emb.unsqueeze(0)).pow(2).sum(-1)
+    pos_loss = (pos_pairs * pos_dist).sum() / (pos_pairs.sum() + 1e-6)
+    return pos_loss
+
+
+⸻
+
+💰 2. Amount-balancing Positive Pair Loss
+
+Two samples are positive if they are part of any zero-sum group.
+
+Define:
+
+balance_mask[i][j] = 1 if Amount_i + Amount_j ≈ 0
+
+For multi-item clusters, use residue matching:
+
+abs(sum(group_amounts)) small → group positive
+
+Simplest pairwise version:
+
+def amount_positive_mask(amounts, tol=1e-4):
+    sums = amounts.unsqueeze(0) + amounts.unsqueeze(1)
+    return (torch.abs(sums) < tol).float()
+
+Loss:
+
+def amount_loss(emb, amount_mask):
+    pos_pairs = amount_mask > 0
+    pos_dist = (emb.unsqueeze(1) - emb.unsqueeze(0)).pow(2).sum(-1)
+    return (pos_pairs * pos_dist).sum() / (pos_pairs.sum() + 1e-6)
+
+This alone will significantly improve clustering.
+
+⸻
+
+🧨 3. Negative Contrastive Loss
+
+Ensure embeddings are far apart for negative pairs:
+
+negative_mask = 1 - (date_mask OR amount_mask)
+
+Contrastive “push-away” loss:
+
+def negative_loss(emb, pos_mask, margin=1.0):
+    neg_mask = 1 - pos_mask
+    dist = (emb.unsqueeze(1) - emb.unsqueeze(0)).pow(2).sum(-1)
+    neg_dist = torch.clamp(margin - torch.sqrt(dist + 1e-6), min=0)
+    return (neg_mask * neg_dist).sum() / (neg_mask.sum() + 1e-6)
+
+
+⸻
+
+🧮 Final Loss Function
+
+Putting it all together:
+
+def custom_loss(emb, dates, amounts,
+                w_date=1.0, w_amount=2.0, w_neg=1.0, margin=1.0):
+
+    date_mask = date_positive_mask(dates)
+    amt_mask = amount_positive_mask(amounts)
+    pos_mask = torch.clamp(date_mask + amt_mask, 0, 1)
+
+    Ld = date_loss(emb, date_mask)
+    La = amount_loss(emb, amt_mask)
+    Ln = negative_loss(emb, pos_mask, margin)
+
+    return w_date * Ld + w_amount * La + w_neg * Ln
+
+
+⸻
+
+🎁 Why This Works Perfectly for Your Business Case
+
+✔ Learns “±3-day proximity” naturally
+
+ No hand-coded windowing needed in the clustering stage.
+
+✔ Learns amount balancing implicitly
+
+ The embeddings will encode “this belongs to group that sums to 0”.
+
+✔ No need for graph matching
+
+ Embeddings already encode balancing constraints.
+
+✔ Unsupervised
+
+ Does not use MatchGroupId — works for production.
+
+✔ Fast at inference
+
+ After training, clustering is just DBSCAN.
+
+⸻
+
+🚀 Want full code integrated into your hybrid Transformer encoder?
+
+I can regenerate the full pipeline:
+	•	Field-wise CNN encoders
+	•	Transformer encoder
+	•	Autoencoder training
+	•	This new custom loss function
+	•	DBSCAN
+	•	Evaluation
+
+Just say:
+
+“Generate full code with this loss function integrated.”
+
+
+
 Planning:
 
 4 places
