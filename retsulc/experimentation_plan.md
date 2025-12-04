@@ -22,15 +22,15 @@ DBScan settings hyperparamter grid search
 
 Some quick stats:
 
-2_ : 157 clusters (stats look better)
-3_ : 22 clusters
-4_: 51 clusters
-5_: 
-6_: 13 clusters
-7_: 44 clusters
-8_: 24 clusters
-9_: 14 clusters
-10_: 105 clusters
+- 2_ : 157 clusters (stats look better)
+- 3_ : 22 clusters
+- 4_: 51 clusters
+- 5_: 
+- 6_: 13 clusters
+- 7_: 44 clusters
+- 8_: 24 clusters
+- 9_: 14 clusters
+- 10_: 105 clusters
 
 
 
