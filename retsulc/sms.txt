@@ -1,1 +1,5 @@
 A quick question, can we use MatchGroupdId as ground truth for learning embeddings?
+
+Also, can we use post-processing balancing technique (balancing the Amount to sum to zero) after clustering? Or do we need to solve this solely based on embeddings + clustering without any post-processing.
+
+(I am seeing slightly better results with post-processing balancing technique after clustering
