@@ -31,6 +31,15 @@ def lcs_len(a, b):
                 dp[i+1][j+1] = max(dp[i][j+1], dp[i+1][j])
     return dp[m][n]
 
+# Character fields to compare
+char_fields = [
+    "MerchantRefNum",
+    "WebOrderNumber",
+    "AcquireRefNumber",
+    "TransactionRefNo",
+    "AccountingDocNum"
+]
+
 for col1, col2 in combinations(char_fields, 2):
     df[f"{col1}_{col2}"] = df.apply(
         lambda r: lcs_len(str(r[col1]), str(r[col2])),
