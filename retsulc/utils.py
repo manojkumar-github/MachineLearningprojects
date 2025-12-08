@@ -19,17 +19,23 @@ for idx, row in pred_cluster_counts_df.iterrows():
 
 ### LCS 
 
-def lcs_len(a, b):
+def longest_common_substring(a, b):
     m, n = len(a), len(b)
     dp = [[0]*(n+1) for _ in range(m+1)]
+    longest = 0
+    end_pos = 0  # end position in string a
 
-    for i in range(m):
-        for j in range(n):
-            if a[i] == b[j]:
-                dp[i+1][j+1] = dp[i][j] + 1
-            else:
-                dp[i+1][j+1] = max(dp[i][j+1], dp[i+1][j])
-    return dp[m][n]
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if a[i-1] == b[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+                if dp[i][j] > longest:
+                    longest = dp[i][j]
+                    end_pos = i
+            # no else needed — dp[i][j] stays 0
+
+    return a[end_pos - longest : end_pos]
+
 
 # Character fields to compare
 char_fields = [
@@ -42,7 +48,7 @@ char_fields = [
 
 for col1, col2 in combinations(char_fields, 2):
     df[f"{col1}_{col2}"] = df.apply(
-        lambda r: lcs_len(str(r[col1]), str(r[col2])),
+        lambda r: longest_common_substring(str(r[col1]), str(r[col2])),
         axis=1
     )
 
