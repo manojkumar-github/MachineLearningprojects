@@ -18,8 +18,9 @@ for idx, row in pred_cluster_counts_df.iterrows():
 
 
 ### LCS 
-
 def longest_common_substring(a, b):
+    if a == "unknown" or b == "unknown":
+        return 0
     m, n = len(a), len(b)
     dp = [[0]*(n+1) for _ in range(m+1)]
     longest = 0
@@ -34,7 +35,7 @@ def longest_common_substring(a, b):
                     end_pos = i
             # no else needed — dp[i][j] stays 0
 
-    return a[end_pos - longest : end_pos]
+    return len(a[end_pos - longest : end_pos])
 
 
 # Character fields to compare
