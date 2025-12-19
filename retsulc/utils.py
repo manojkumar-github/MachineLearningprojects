@@ -95,6 +95,14 @@ date_range_stats
 
 # LCS stats
 
+char_fields = [
+    "MerchantRefNum",
+    "WebOrderNumber",
+    "AcquireRefNumber",
+    "TransactionRefNo",
+    "AccountingDocNum"
+]
+
 import pandas as pd
 import numpy as np
 from itertools import combinations
