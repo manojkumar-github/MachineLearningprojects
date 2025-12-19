@@ -93,3 +93,20 @@ date_range_stats = (
 date_range_stats
 
 
+# LCS stats
+
+import pandas as pd
+import numpy as np
+from itertools import combinations
+
+# Treat NaN / null / 'unknown' as empty string
+df[char_fields] = (
+    df[char_fields]
+    .fillna("")
+    .replace("unknown", "", regex=False)
+)
+
+# MatchGroup size
+df["matchgroup_size"] = df.groupby("MatchGroupId")["MatchGroupId"].transform("size")
+
+
