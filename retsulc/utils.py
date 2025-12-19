@@ -136,5 +136,18 @@ group_level = (
     .drop_duplicates("MatchGroupId")
 )
 
+stats_df = (
+    group_level
+    .groupby("matchgroup_size")[lcs_cols]
+    .agg(["mean", "max", "min", "std"])
+)
+
+# Flatten column names
+stats_df.columns = [
+    f"{col}_{stat}"
+    for col, stat in stats_df.columns
+]
+
+stats_df = stats_df.reset_index()
 
 
