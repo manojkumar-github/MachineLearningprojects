@@ -59,7 +59,7 @@ for col1, col2 in combinations(char_fields, 2):
 
 import pandas as pd
 
-df["DocumentDate"] = pd.to_datetime(df["DocumentDate"], format="%Y%m/%d/")
+df["DocumentDate"] = pd.to_datetime(df["DocumentDate"], format="%Y/%m/%d/")
 
 # Size of each MatchGroupId
 df["matchgroup_size"] = df.groupby("MatchGroupId")["MatchGroupId"].transform("size")
