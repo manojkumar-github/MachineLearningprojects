@@ -131,6 +131,10 @@ for c1, c2 in combinations(char_fields, 2):
         axis=1
     )
 
+group_level = (
+    df[["MatchGroupId", "matchgroup_size"] + lcs_cols]
+    .drop_duplicates("MatchGroupId")
+)
 
 
 
