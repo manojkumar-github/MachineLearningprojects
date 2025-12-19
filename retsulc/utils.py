@@ -121,5 +121,16 @@ def lcs_continuous_len(a, b):
                 longest = max(longest, dp[i][j])
     return longest
 
+lcs_cols = []
+
+for c1, c2 in combinations(char_fields, 2):
+    col_name = f"{c1}_{c2}_LCS_len"
+    lcs_cols.append(col_name)
+    df[col_name] = df.apply(
+        lambda r: lcs_continuous_len(r[c1], r[c2]),
+        axis=1
+    )
+
+
 
 
