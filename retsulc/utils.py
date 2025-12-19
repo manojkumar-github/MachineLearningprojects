@@ -53,3 +53,43 @@ for col1, col2 in combinations(char_fields, 2):
         axis=1
     )
 
+
+### Date Stats
+# New cell
+
+import pandas as pd
+
+df["DocumentDate"] = pd.to_datetime(df["DocumentDate"], format="%m/%d/%Y")
+
+# Size of each MatchGroupId
+df["matchgroup_size"] = df.groupby("MatchGroupId")["MatchGroupId"].transform("size")
+
+date_range_df = (
+    df.groupby("MatchGroupId")["DocumentDate"]
+      .agg(lambda x: (x.max() - x.min()).days)
+      .rename("date_range_days")
+      .reset_index()
+)
+
+df = df.merge(date_range_df, on="MatchGroupId", how="left")
+
+df.columns
+
+## Next cell
+date_range_days = max(DocumentDate) - min(DocumentDate) within MatchGroupId
+
+date_range_stats = (
+    df[["MatchGroupId", "matchgroup_size", "date_range_days"]]
+      .drop_duplicates("MatchGroupId")
+      .groupby("matchgroup_size")["date_range_days"]
+      .agg(
+          max_date_range="max",
+          min_date_range="min",
+          mean_date_range="mean"
+      )
+      .reset_index()
+)
+
+date_range_stats
+
+
