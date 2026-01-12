@@ -18,7 +18,7 @@ token_log_entry = {
         "total_tokens": total_tokens
     }
 }
-logger.info(json.dumps(log_entry))
+logger.info(f"MyLLM Token Stats: {json.dumps(log_entry)}")
 
 if response == 200:
   return data['complet'] # replace response.json() with data in this line
