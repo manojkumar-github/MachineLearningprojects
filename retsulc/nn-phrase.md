@@ -1,6 +1,4 @@
-Your notes already contain the **right pieces**, but they’re scattered. Let’s reorganize them into a **clear system design + ML brainstorming framework** that you can use in a team discussion.
-
-I’ll structure it into:
+Structure:
 
 1. Problem Definition
 2. System Architecture (Data Pipeline)
