@@ -714,9 +714,8 @@ Distribution learning
 
 ---
 
-# 15. Important Team Discussion Questions
+# 15. Team Discussion Questions
 
-Use these in your brainstorm:
 
 1. **Is rule schedule unique per interface?**
 2. **What is the historical data retention?**
@@ -726,6 +725,4 @@ Use these in your brainstorm:
 6. **How often should models retrain?**
 7. **Should recommendations auto-update rules or require approval?**
 
----
 
-If you'd like, I can also show you a **very clean architecture diagram + ML workflow (the kind used in senior ML system design interviews)** — it will make this idea **10× easier to explain to your team.**
