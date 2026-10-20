@@ -1,0 +1,20 @@
+### From User Demand to GPU Fleet Size
+
+**Illustrative scenario:**
+
+- Peak traffic: **~50K requests/sec**
+- Average request: **500 input tokens + 300 output tokens**
+- Required capacity: **~25M input tokens/sec** and **~15M output tokens/sec**
+- Assuming **~2,500 output tokens/sec/GPU**, decode needs:
+  - **~6,000 GPUs** at theoretical 100% utilization
+  - **~10,000 GPUs** at a more realistic 60% utilization
+- Add prefill capacity: **~1K–2K GPUs**
+- Total illustrative fleet: **~10K–12K GPUs**
+- Annual infrastructure cost: **$200M+**, depending on GPU pricing and deployment model
+
+**Why this matters**
+
+- GPU requirements are driven by **tokens**, not simply requests per second.
+- Decode capacity is often constrained by **KV-cache memory and memory bandwidth**.
+- A **1% throughput improvement** at this scale can save roughly **100 GPUs**, potentially worth **~$2M/year**.
+- This is why benchmarking model throughput, memory use, batching, and realistic utilization is critical before fleet-sizing decisions.
